@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="es" id="html-root">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Golf! Data Dictionary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --ug-green: #15803d;
+            --ug-green-dark: #14532d;
+            --ug-bg: #f0fdf4;
+        }
+
+        body {
+            background-image: linear-gradient(rgba(240, 253, 244, 0.8), rgba(240, 253, 244, 0.8)), url('golf.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: manipulation;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background-color: var(--ug-green);
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.95);
+            background-color: var(--ug-green-dark);
+        }
+
+        .input-field {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: var(--ug-green);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .wind-clock {
+            width: 90px;
+            height: 90px;
+            background: rgba(34, 197, 94, 0.15);
+            border-radius: 50%;
+            border: 3px solid #10b981;
+            position: relative;
+            cursor: crosshair;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.1);
+            touch-action: none;
+        }
+
+        .wind-clock::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+        }
+
+        .clock-num {
+            position: absolute;
+            font-size: 11px;
+            font-weight: 800;
+            color: #064e3b;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .num-6 {
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .num-9 {
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .num-12 {
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .num-3 {
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .clock-marker {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #4b5563;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            pointer-events: none;
+        }
+
+        .wind-arrow-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .wind-arrow {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            width: 1.5px;
+            height: 35px;
+            background: #10b981;
+            transform-origin: bottom center;
+            transform: translateX(-50%);
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .wind-arrow::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 8px solid #10b981;
+        }
+
+        .mini-clock {
+            width: 80px;
+            height: 80px;
+            border-width: 3px;
+            background: rgba(34, 197, 94, 0.15);
+            border-color: #10b981;
+        }
+
+        .mini-clock .clock-num {
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .mini-clock .num-6 {
+            top: 5px;
+        }
+
+        .mini-clock .num-12 {
+            bottom: 5px;
+        }
+
+        .mini-clock .num-9 {
+            right: 5px;
+        }
+
+        .mini-clock .num-3 {
+            left: 5px;
+        }
+
+        .mini-clock .wind-arrow {
+            height: 16px;
+            width: 1px;
+        }
+
+        .mini-clock .wind-arrow::after {
+            border-left-width: 2.5px;
+            border-right-width: 2.5px;
+            border-bottom-width: 4px;
+            top: -3px;
+        }
+
+        .mini-clock .clock-marker {
+            width: 2px;
+            height: 2px;
+        }
+
+        .suggestions-list {
+            position: absolute;
+            z-index: 100;
+            width: 100%;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            margin-top: 4px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #4a5568;
+            transition: background 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background: #f0fdf4;
+            color: var(--ug-green);
+        }
+
+        .suggestion-item:not(:last-child) {
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .mini-clock {
+            width: 80px;
+            height: 80px;
+            border-width: 3px;
+            background: rgba(34, 197, 94, 0.15);
+            border-color: #10b981;
+        }
+
+        .mini-clock .clock-num {
+            font-size: 10px;
+        }
+
+        .mini-clock .num-6 {
+            top: 5px;
+        }
+
+        .mini-clock .num-12 {
+            bottom: 5px;
+        }
+
+        .mini-clock .num-9 {
+            right: 5px;
+        }
+
+        .mini-clock .num-3 {
+            left: 5px;
+        }
+
+        .mini-clock .wind-arrow {
+            height: 35%;
+            top: 15%;
+            width: 1px;
+        }
+
+        .mini-clock .wind-arrow::after {
+            border-left-width: 4px;
+            border-right-width: 4px;
+            border-bottom-width: 6px;
+            top: -4px;
+        }
+
+        .lang-selector {
+            position: relative;
+            display: inline-block;
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.2s;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .lang-dropdown {
+            display: none;
+            position: absolute;
+            top: 110%;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            z-index: 200;
+            min-width: 130px;
+        }
+
+        .lang-dropdown.open {
+            display: block;
+        }
+
+        .lang-option {
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.15s;
+        }
+
+        .lang-option:hover {
+            background: #f0fdf4;
+            color: #15803d;
+        }
+
+        .lang-option.active {
+            background: #dcfce7;
+            color: #15803d;
+            font-weight: 600;
+        }
+
+        .lang-option:not(:last-child) {
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        /* Image Zoom Styles */
+        .image-zoom-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            cursor: zoom-out;
+        }
+
+        .image-zoom-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .zoomed-image {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .image-zoom-overlay.active .zoomed-image {
+            transform: scale(1);
+        }
+
+        .close-zoom {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 1001;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body class="pb-20">
+
+    <header class="bg-green-800 text-white p-4 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="fas fa-golf-ball"></i> UG Precision Master
+            </h1>
+            <div class="flex items-center gap-2">
+                <span id="entryCount" class="bg-green-900 px-3 py-1 rounded-full text-sm">0 Entradas</span>
+                <div class="lang-selector">
+                    <button class="lang-btn" onclick="toggleLangDropdown()">
+                        <span id="lang-flag">🇪🇸</span>
+                        <span id="lang-label">ES</span>
+                        <i class="fas fa-chevron-down" style="font-size:9px"></i>
+                    </button>
+                    <div id="lang-dropdown" class="lang-dropdown">
+                        <div class="lang-option active" id="lang-es" onclick="setLanguage('es')">
+                            🇪🇸 Español
+                        </div>
+                        <div class="lang-option" id="lang-en" onclick="setLanguage('en')">
+                            🇺🇸 English
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 max-w-md">
+
+        <section id="view-form" class="tab-content active">
+            <div class="card p-6 mb-4 relative">
+                <div class="flex justify-between items-start mb-4">
+                    <div style="margin-top: 30px;">
+                        <h2 id="form-title" class="text-lg font-semibold text-gray-700">Registrar Nuevo Tiro</h2>
+                    </div>
+                    <div id="interactive-clock" class="wind-clock" onmousedown="startRotate(event)"
+                        ontouchstart="startRotate(event)">
+                        <span class="clock-num num-6">6</span>
+                        <span class="clock-num num-9">9</span>
+                        <span class="clock-num num-12">12</span>
+                        <span class="clock-num num-3">3</span>
+
+                        <div class="clock-marker"
+                            style="transform: translate(-50%, -50%) rotate(30deg) translateY(-36px)"></div>
+                        <div class="clock-marker"
+                            style="transform: translate(-50%, -50%) rotate(60deg) translateY(-36px)"></div>
+                        <div class="clock-marker"
+                            style="transform: translate(-50%, -50%) rotate(120deg) translateY(-36px)"></div>
+                        <div class="clock-marker"
+                            style="transform: translate(-50%, -50%) rotate(150deg) translateY(-36px)"></div>
+                        <div class="clock-marker"
+                            style="transform: translate(-50%, -50%) rotate(210deg) translateY(-36px)"></div>
+                        <div class="clock-marker"
+                            style="transform: translate(-50%, -50%) rotate(240deg) translateY(-36px)"></div>
+                        <div class="clock-marker"
+                            style="transform: translate(-50%, -50%) rotate(300deg) translateY(-36px)"></div>
+                        <div class="clock-marker"
+                            style="transform: translate(-50%, -50%) rotate(330deg) translateY(-36px)"></div>
+
+                        <div id="wind-arrow-wrapper" class="wind-arrow-container" style="transform: rotate(0deg)">
+                            <div id="main-arrow" class="wind-arrow"></div>
+                        </div>
+                    </div>
+                </div>
+                <form id="golf-form" class="space-y-4">
+                    <input type="hidden" id="edit-id">
+                    <input type="hidden" id="wind-angle" value="0">
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">Campo</label>
+                        <input type="text" id="course" class="input-field" placeholder="Nombre del campo" required>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Posición bandera</label>
+                            <input type="text" id="flag-pos" class="input-field" placeholder="Ej: Fondo Izq">
+                        </div>
+                        <div class="relative">
+                            <label class="block text-sm font-medium text-gray-600">Bola</label>
+                            <input type="text" id="ball" class="input-field" placeholder="Ej: Hi-Flight" required
+                                autocomplete="off">
+                            <div id="ball-suggestions" class="suggestions-list"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="relative">
+                            <label class="block text-sm font-medium text-gray-600">Palo</label>
+                            <input type="text" id="club" class="input-field" placeholder="Ej: Driver" required
+                                autocomplete="off">
+                            <div id="club-suggestions" class="suggestions-list"></div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Nivel de palo</label>
+                            <input type="text" id="club-level" class="input-field" placeholder="Ej: 7, 8, 9">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Hoyo</label>
+                            <input type="text" id="hole" class="input-field" placeholder="Ej: 1" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Viento (MPH)</label>
+                            <input type="text" id="wind" class="input-field" placeholder="Ej: 10, 15">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Anillos</label>
+                            <input type="text" id="rings" class="input-field" placeholder="Ej: 2.1">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Pins</label>
+                            <input type="text" id="pins" class="input-field" placeholder="Ubicación pin">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">SV</label>
+                            <input type="text" id="sv" class="input-field" placeholder="Ej: 2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Rollout</label>
+                            <input type="text" id="roll" class="input-field" placeholder="Ej: 10">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Pull</label>
+                            <input type="text" id="pull" class="input-field" placeholder="Ej: 2">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <div class="flex-grow">
+                            <label class="block text-sm font-medium text-gray-600">Observaciones</label>
+                            <textarea id="notes" class="input-field h-24" placeholder="Detalles, ajustes..."></textarea>
+                        </div>
+                        <div class="w-24 h-24 mt-6">
+                            <div id="image-box"
+                                class="relative w-full h-full border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer overflow-hidden bg-gray-50 hover:bg-gray-100 transition-colors"
+                                onclick="document.getElementById('image-input').click()">
+                                <i id="upload-icon" class="fas fa-camera text-gray-400 text-xl mb-1"></i>
+                                <span id="upload-text" class="text-[10px] text-gray-400">Imagen</span>
+                                <input type="file" id="image-input" class="hidden" accept="image/*"
+                                    onchange="handleImage(this)">
+                                <img id="preview-img" class="absolute inset-0 w-full h-full object-cover hidden">
+                                <button type="button" id="remove-img"
+                                    class="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] hidden"
+                                    onclick="clearImage(event)">×</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button type="submit" id="btn-save"
+                            class="btn-primary flex-1 py-3 rounded-xl font-bold shadow-md">
+                            <i class="fas fa-save mr-2"></i> Guardar Entrada
+                        </button>
+                        <button type="button" id="btn-cancel"
+                            class="hidden bg-gray-400 text-white px-4 py-3 rounded-xl font-bold" onclick="resetForm()">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section id="view-inventory" class="tab-content">
+            <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-700">Tiros Registrados</h2>
+                <div class="relative">
+                    <input type="text" id="search" placeholder="Buscar cualquier dato..."
+                        class="p-2 pl-8 rounded-lg border text-sm w-48">
+                    <i class="fas fa-search absolute left-2 top-3 text-gray-400 text-xs"></i>
+                </div>
+            </div>
+
+            <div id="inventory-list" class="space-y-3">
+                <div class="text-center py-10 text-gray-500">
+                    <i class="fas fa-book-open text-4xl mb-2"></i>
+                    <p>No hay registros aún.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <nav
+        class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-2 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+        <button onclick="switchTab('form')" class="nav-btn flex flex-col items-center p-2 text-green-700" id="nav-form">
+            <i class="fas fa-plus-circle text-xl"></i>
+            <span class="text-xs">Nuevo</span>
+        </button>
+        <button onclick="switchTab('inventory')" class="nav-btn flex flex-col items-center p-2 text-gray-400"
+            id="nav-inventory">
+            <i class="fas fa-list text-xl"></i>
+            <span class="text-xs">Inventario</span>
+        </button>
+    </nav>
+
+    <div id="toast"
+        class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-2 rounded-full text-sm opacity-0 transition-opacity pointer-events-none z-50">
+        Mensaje aquí
+    </div>
+
+    <div id="image-zoom" class="image-zoom-overlay" onclick="closeZoom()">
+        <span class="close-zoom">&times;</span>
+        <img id="zoomed-img" class="zoomed-image" src="" alt="Zoomed View">
+    </div>
+
+
+
+    <script>
+        let db = [];
+        let currentLang = localStorage.getItem('ugolf_lang') || 'es';
+
+        const TRANSLATIONS = {
+            es: {
+                title: 'UG Precision Master',
+                entries: 'Entradas',
+                formTitle: 'Registrar Nuevo Tiro',
+                editTitle: 'Editando Registro',
+                course: 'Campo',
+                coursePh: 'Nombre del campo',
+                flagPos: 'Posición bandera',
+                flagPosPh: 'Ej: Fondo Izq',
+                ball: 'Bola',
+                ballPh: 'Ej: Hi-Flight',
+                club: 'Palo',
+                clubPh: 'Ej: Driver',
+                clubLevel: 'Nivel de palo',
+                clubLevelPh: 'Ej: 7, 8, 9',
+                hole: 'Hoyo',
+                holePh: 'Ej: 1',
+                wind: 'Viento (MPH)',
+                windPh: 'Ej: 10, 15',
+                rings: 'Anillos',
+                ringsPh: 'Ej: 2.1',
+                pins: 'Pins',
+                pinsPh: 'Ubicación pin',
+                sv: 'SV',
+                svPh: 'Ej: 2',
+                rollout: 'Rollout',
+                rolloutPh: 'Ej: 10',
+                pull: 'Pull',
+                pullPh: 'Ej: 2',
+                notes: 'Observaciones',
+                notesPh: 'Detalles, ajustes...',
+                image: 'Imagen',
+                save: '<i class="fas fa-save mr-2"></i> Guardar Entrada',
+                update: '<i class="fas fa-sync mr-2"></i> Actualizar',
+                cancel: 'Cancelar',
+                registered: 'Tiros Registrados',
+                searchPh: 'Buscar cualquier dato...',
+                noResults: 'No se encontraron resultados.',
+                noRecords: 'No hay registros aún.',
+                navNew: 'Nuevo',
+                navInventory: 'Inventario',
+                toastSaved: '¡Tiro registrado!',
+                toastUpdated: '¡Registro actualizado!',
+                toastDeleted: 'Registro eliminado',
+                confirmDelete: '¿Eliminar este registro de Ultimate Golf?',
+                back: '<i class="fas fa-chevron-left mr-2"></i> Volver',
+                flag: 'Bandera',
+                dir: 'Dir',
+                ballLabel: 'Bola',
+                clubLabel: 'Palo',
+                windLabel: 'Viento',
+                ringsLabel: 'Anillos',
+                pinsLabel: 'Pins',
+                svLabel: 'SV',
+                rolloutLabel: 'Rollout',
+                pullLabel: 'Pull',
+                windAngle: 'º Viento'
+            },
+            en: {
+                title: 'UG Precision Master',
+                entries: 'Entries',
+                formTitle: 'Register New Shot',
+                editTitle: 'Editing Record',
+                course: 'Course',
+                coursePh: 'Course name',
+                flagPos: 'Flag Position',
+                flagPosPh: 'Ex: Back Left',
+                ball: 'Ball',
+                ballPh: 'Ex: Hi-Flight',
+                club: 'Club',
+                clubPh: 'Ex: Driver',
+                clubLevel: 'Club Level',
+                clubLevelPh: 'Ex: 7, 8, 9',
+                hole: 'Hole',
+                holePh: 'Ex: 1',
+                wind: 'Wind (MPH)',
+                windPh: 'Ex: 10, 15',
+                rings: 'Rings',
+                ringsPh: 'Ex: 2.1',
+                pins: 'Pins',
+                pinsPh: 'Pin location',
+                sv: 'SV',
+                svPh: 'Ex: 2',
+                rollout: 'Rollout',
+                rolloutPh: 'Ex: 10',
+                pull: 'Pull',
+                pullPh: 'Ex: 2',
+                notes: 'Notes',
+                notesPh: 'Details, adjustments...',
+                image: 'Image',
+                save: '<i class="fas fa-save mr-2"></i> Save Entry',
+                update: '<i class="fas fa-sync mr-2"></i> Update',
+                cancel: 'Cancel',
+                registered: 'Registered Shots',
+                searchPh: 'Search any data...',
+                noResults: 'No results found.',
+                noRecords: 'No records yet.',
+                navNew: 'New',
+                navInventory: 'Inventory',
+                toastSaved: 'Shot registered!',
+                toastUpdated: 'Record updated!',
+                toastDeleted: 'Record deleted',
+                confirmDelete: 'Delete this Ultimate Golf record?',
+                back: '<i class="fas fa-chevron-left mr-2"></i> Back',
+                flag: 'Flag',
+                dir: 'Dir',
+                ballLabel: 'Ball',
+                clubLabel: 'Club',
+                windLabel: 'Wind',
+                ringsLabel: 'Rings',
+                pinsLabel: 'Pins',
+                svLabel: 'SV',
+                rolloutLabel: 'Rollout',
+                pullLabel: 'Pull',
+                windAngle: 'Wind º'
+            }
+        };
+
+        function t(key) {
+            return TRANSLATIONS[currentLang][key] || TRANSLATIONS['es'][key] || key;
+        }
+
+        function toggleLangDropdown() {
+            document.getElementById('lang-dropdown').classList.toggle('open');
+        }
+
+        document.addEventListener('click', function (e) {
+            const selector = document.querySelector('.lang-selector');
+            if (selector && !selector.contains(e.target)) {
+                document.getElementById('lang-dropdown').classList.remove('open');
+            }
+        });
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('ugolf_lang', lang);
+            document.getElementById('html-root').setAttribute('lang', lang);
+            document.getElementById('lang-dropdown').classList.remove('open');
+
+            // Update selector button
+            document.getElementById('lang-flag').textContent = lang === 'es' ? '🇪🇸' : '🇺🇸';
+            document.getElementById('lang-label').textContent = lang === 'es' ? 'ES' : 'EN';
+
+            // Update active option
+            document.getElementById('lang-es').classList.toggle('active', lang === 'es');
+            document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            // Header
+            document.getElementById('entryCount').innerText = `${db.length} ${t('entries')}`;
+
+            // Form title (only if not editing)
+            const editId = document.getElementById('edit-id').value;
+            document.getElementById('form-title').innerText = editId ? t('editTitle') : t('formTitle');
+
+            // Form labels - using querySelectorAll on the form labels
+            const labelMap = [
+                { id: 'course', label: t('course'), ph: t('coursePh') },
+                { id: 'flag-pos', label: t('flagPos'), ph: t('flagPosPh') },
+                { id: 'ball', label: t('ball'), ph: t('ballPh') },
+                { id: 'club', label: t('club'), ph: t('clubPh') },
+                { id: 'club-level', label: t('clubLevel'), ph: t('clubLevelPh') },
+                { id: 'hole', label: t('hole'), ph: t('holePh') },
+                { id: 'wind', label: t('wind'), ph: t('windPh') },
+                { id: 'rings', label: t('rings'), ph: t('ringsPh') },
+                { id: 'pins', label: t('pins'), ph: t('pinsPh') },
+                { id: 'sv', label: t('sv'), ph: t('svPh') },
+                { id: 'roll', label: t('rollout'), ph: t('rolloutPh') },
+                { id: 'pull', label: t('pull'), ph: t('pullPh') },
+                { id: 'notes', label: t('notes'), ph: t('notesPh') }
+            ];
+
+            labelMap.forEach(item => {
+                const el = document.getElementById(item.id);
+                if (el) {
+                    el.placeholder = item.ph;
+                    const label = el.closest('div').querySelector('label');
+                    if (label) label.textContent = item.label;
+                }
+            });
+
+            // Image upload text
+            const uploadText = document.getElementById('upload-text');
+            if (uploadText) uploadText.textContent = t('image');
+
+            // Save/Cancel buttons
+            const btnSave = document.getElementById('btn-save');
+            if (btnSave) btnSave.innerHTML = editId ? t('update') : t('save');
+            const btnCancel = document.getElementById('btn-cancel');
+            if (btnCancel) btnCancel.textContent = t('cancel');
+
+            // Inventory section title
+            const invTitle = document.querySelector('#view-inventory h2');
+            if (invTitle) invTitle.textContent = t('registered');
+
+            // Search placeholder
+            const searchEl = document.getElementById('search');
+            if (searchEl) searchEl.placeholder = t('searchPh');
+
+            // Nav buttons
+            document.querySelector('#nav-form span').textContent = t('navNew');
+            document.querySelector('#nav-inventory span').textContent = t('navInventory');
+
+            // Re-render inventory to translate card labels
+            renderInventory(searchInput.value);
+        }
+        const form = document.getElementById('golf-form');
+        const inventoryList = document.getElementById('inventory-list');
+        const searchInput = document.getElementById('search');
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const storedData = await localforage.getItem('ultimateGolfData');
+                if (storedData) {
+                    db = storedData;
+                } else {
+                    const legacyData = localStorage.getItem('ultimateGolfData');
+                    if (legacyData) {
+                        db = JSON.parse(legacyData);
+                        await localforage.setItem('ultimateGolfData', db);
+                        console.log("Migración completada de localStorage a IndexedDB");
+                    }
+                }
+            } catch (err) {
+                console.error("Error cargando la base de datos:", err);
+            }
+
+            renderInventory();
+            updateCount();
+            setupAutocompletes();
+
+            // Apply saved language
+            if (currentLang !== 'es') {
+                setLanguage(currentLang);
+            }
+        });
+
+        function setupAutocompletes() {
+            const nestedClubs = {
+                "Drivers": ["Basic", "Battering Ram", "Outlaw", "Highlander", "Nautilus", "Holy Driver", "Fusion", "Red Barchetta"],
+                "Woods": ["Basic", "El Capitan", "Apollo", "Viking", "Stingray", "I am Root", "Maverick", "Hellfire"],
+                "Long Irons": ["Basic", "Trail Blazer", "Raptor", "Extra Terrestrial", "Big Foot", "Lightning Rod", "Iron Maiden", "Pegasus"],
+                "Short Irons": ["Basic", "Sniper", "Iron Eagle", "Mako", "Cyclone", "Spectre", "Orion", "Rattler"],
+                "Wedges": ["Basic", "Sparrow", "YYZ", "Atlas", "Sentinel", "Hypnotix", "Zeus", "The Hive"],
+                "Rough Irons": ["Basic", "Mercury", "Jester", "Yellow Jacket", "Phoenix", "The Ninja", "Gearhead", "Voodoo"],
+                "Sand Wedges": ["Basic", "Scarab", "Sandman", "IG-88", "The Sphynx", "Gemini", "Orca", "Adobe"]
+            };
+
+            const balls = ["Pro D1", "10%", "11%", "12%", "13%", "14%"];
+
+            setupAutocomplete('club', 'club-suggestions', nestedClubs, true);
+            setupAutocomplete('ball', 'ball-suggestions', balls, false);
+        }
+
+        function setupAutocomplete(inputId, suggestionsId, data, isNested) {
+            const input = document.getElementById(inputId);
+            const suggestions = document.getElementById(suggestionsId);
+
+            const renderLevel = (items, prefix = "") => {
+                suggestions.innerHTML = '';
+
+                if (prefix) {
+                    const backBtn = document.createElement('div');
+                    backBtn.className = 'suggestion-item font-bold text-green-700 bg-green-50';
+                    backBtn.innerHTML = t('back');
+                    backBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        showSuggestions(input.value);
+                    };
+                    suggestions.appendChild(backBtn);
+                }
+
+                items.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item flex justify-between items-center';
+                    div.innerHTML = `<span>${item}</span> ${!prefix && isNested ? '<i class="fas fa-chevron-right text-[10px] text-gray-300"></i>' : ''}`;
+
+                    div.onclick = (e) => {
+                        e.stopPropagation();
+                        if (!prefix && isNested) {
+                            renderLevel(data[item], item);
+                        } else {
+                            input.value = item;
+                            suggestions.style.display = 'none';
+                        }
+                    };
+                    suggestions.appendChild(div);
+                });
+                suggestions.style.display = 'block';
+            };
+
+            const showSuggestions = (val) => {
+                if (isNested) {
+                    const categories = Object.keys(data);
+                    const filtered = categories.filter(cat => cat.toLowerCase().includes(val.toLowerCase()));
+                    if (filtered.length > 0) {
+                        renderLevel(filtered);
+                    } else {
+                        suggestions.style.display = 'none';
+                    }
+                } else {
+                    const filtered = data.filter(item => item.toLowerCase().includes(val.toLowerCase()));
+                    if (filtered.length > 0) {
+                        renderLevel(filtered);
+                    } else {
+                        suggestions.style.display = 'none';
+                    }
+                }
+            };
+
+            input.addEventListener('focus', () => showSuggestions(input.value));
+            input.addEventListener('input', (e) => showSuggestions(e.target.value));
+
+            document.addEventListener('click', (e) => {
+                if (e.target !== input && !suggestions.contains(e.target)) {
+                    suggestions.style.display = 'none';
+                }
+            });
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.replace('text-green-700', 'text-gray-400'));
+
+            document.getElementById(`view-${tab}`).classList.add('active');
+            document.getElementById(`nav-${tab}`).classList.replace('text-gray-400', 'text-green-700');
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const entryId = document.getElementById('edit-id').value;
+            const newEntry = {
+                id: entryId || Date.now().toString(),
+                course: document.getElementById('course').value,
+                flagPos: document.getElementById('flag-pos').value,
+                hole: document.getElementById('hole').value,
+                ball: document.getElementById('ball').value,
+                club: document.getElementById('club').value,
+                clubLevel: document.getElementById('club-level').value,
+                wind: document.getElementById('wind').value,
+                rings: document.getElementById('rings').value,
+                pins: document.getElementById('pins').value,
+                sv: document.getElementById('sv').value,
+                roll: document.getElementById('roll').value,
+                pull: document.getElementById('pull').value,
+                notes: document.getElementById('notes').value,
+                image: document.getElementById('preview-img').src.startsWith('data:') ? document.getElementById('preview-img').src : null,
+                windAngle: document.getElementById('wind-angle').value,
+                date: new Date().toLocaleDateString()
+            };
+
+            if (entryId) {
+                const index = db.findIndex(item => item.id === entryId);
+                db[index] = newEntry;
+                showToast(t('toastUpdated'));
+            } else {
+                db.push(newEntry);
+                showToast(t('toastSaved'));
+            }
+
+            saveToStorage();
+            resetForm();
+            renderInventory();
+            switchTab('inventory');
+        });
+
+        async function saveToStorage() {
+            try {
+                await localforage.setItem('ultimateGolfData', db);
+                updateCount();
+            } catch (err) {
+                console.error("Error saving to database:", err);
+                showToast(currentLang === 'es' ? "Error al guardar los datos" : "Error saving data");
+            }
+        }
+
+        function updateCount() {
+            document.getElementById('entryCount').innerText = `${db.length} ${t('entries')}`;
+        }
+
+        function renderInventory(filter = "") {
+            inventoryList.innerHTML = '';
+            const searchTerm = filter.toLowerCase();
+
+            const filteredData = db.filter(item => {
+                return (
+                    item.course.toLowerCase().includes(searchTerm) ||
+                    item.hole.toLowerCase().includes(searchTerm) ||
+                    item.ball.toLowerCase().includes(searchTerm) ||
+                    item.club.toLowerCase().includes(searchTerm) ||
+                    (item.clubLevel && item.clubLevel.toLowerCase().includes(searchTerm)) ||
+                    (item.flagPos && item.flagPos.toLowerCase().includes(searchTerm)) ||
+                    (item.notes && item.notes.toLowerCase().includes(searchTerm)) ||
+                    (item.wind && item.wind.toLowerCase().includes(searchTerm)) ||
+                    (item.sv && item.sv.toLowerCase().includes(searchTerm)) ||
+                    (item.roll && item.roll.toLowerCase().includes(searchTerm)) ||
+                    (item.pull && item.pull.toLowerCase().includes(searchTerm))
+                );
+            });
+
+            if (filteredData.length === 0) {
+                inventoryList.innerHTML = `<div class="text-center py-10 text-gray-500">${t('noResults')}</div>`;
+                return;
+            }
+
+            filteredData.sort((a, b) => a.course.localeCompare(b.course) || a.hole.localeCompare(b.hole));
+
+            filteredData.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'card p-4 flex flex-col gap-2 relative border-l-4 border-green-600';
+                div.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-grow">
+                            <h3 class="font-bold text-green-800 text-lg">${item.course} - ${t('hole')} ${item.hole}</h3>
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                ${item.flagPos ? `<span class="text-[10px] bg-green-100 text-green-800 px-2 py-0.5 rounded-full">${t('flag')}: ${item.flagPos}</span>` : ''}
+                            </div>
+                            <p class="text-[10px] text-gray-400 uppercase font-bold mt-2">${t('ballLabel')}: ${item.ball}</p>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            ${item.image ? `
+                                <div class="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 shadow-sm cursor-zoom-in" onclick="openZoom('${item.image}')">
+                                    <img src="${item.image}" class="w-full h-full object-cover">
+                                </div>
+                            ` : ''}
+                            <div class="flex flex-col gap-1">
+                                <button onclick="editEntry('${item.id}')" class="text-green-600 p-1"><i class="fas fa-edit text-sm"></i></button>
+                                <button onclick="deleteEntry('${item.id}')" class="text-red-500 p-1"><i class="fas fa-trash text-sm"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 bg-gray-50 p-3 rounded-xl mt-1 border border-gray-100">
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px] flex-grow">
+                            <div class="text-gray-600"><strong>${t('clubLabel')}:</strong> ${item.club} (Lvl ${item.clubLevel || '-'})</div>
+                            <div class="text-gray-600"><strong>${t('windLabel')}:</strong> ${item.wind || '-'} MPH</div>
+                            <div class="text-gray-600"><strong>${t('ringsLabel')}:</strong> ${item.rings || '-'}</div>
+                            <div class="text-gray-600"><strong>${t('pinsLabel')}:</strong> ${item.pins || '-'}</div>
+                            <div class="text-gray-600"><strong>${t('svLabel')}:</strong> ${item.sv || '-'}</div>
+                            <div class="text-gray-600"><strong>${t('rolloutLabel')}:</strong> ${item.roll || '-'}</div>
+                            <div class="text-gray-600"><strong>${t('pullLabel')}:</strong> ${item.pull || '-'}</div>
+                        </div>
+                        <div class="flex flex-col items-center justify-center border-l pl-4 border-gray-200 min-w-[100px]">
+                            <span class="text-[9px] font-bold text-green-700 uppercase mb-2 tracking-wider">${t('windAngle')}</span>
+                            <div class="mini-clock wind-clock">
+                                <span class="clock-num num-6">6</span>
+                                <span class="clock-num num-9">9</span>
+                                <span class="clock-num num-12">12</span>
+                                <span class="clock-num num-3">3</span>
+                                <!-- Markers for mini clock adjusted for 80px -->
+                                <div class="clock-marker" style="transform: translate(-50%, -50%) rotate(30deg) translateY(-34px)"></div>
+                                <div class="clock-marker" style="transform: translate(-50%, -50%) rotate(60deg) translateY(-34px)"></div>
+                                <div class="clock-marker" style="transform: translate(-50%, -50%) rotate(120deg) translateY(-34px)"></div>
+                                <div class="clock-marker" style="transform: translate(-50%, -50%) rotate(150deg) translateY(-34px)"></div>
+                                <div class="clock-marker" style="transform: translate(-50%, -50%) rotate(210deg) translateY(-34px)"></div>
+                                <div class="clock-marker" style="transform: translate(-50%, -50%) rotate(240deg) translateY(-34px)"></div>
+                                <div class="clock-marker" style="transform: translate(-50%, -50%) rotate(300deg) translateY(-34px)"></div>
+                                <div class="clock-marker" style="transform: translate(-50%, -50%) rotate(330deg) translateY(-34px)"></div>
+                                <div class="wind-arrow-container" style="transform: rotate(${item.windAngle || 0}deg)">
+                                    <div class="wind-arrow"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ${item.notes ? `<div class="text-sm text-gray-700 bg-green-50 p-2 rounded border-l-2 border-green-200 italic mt-1">"${item.notes}"</div>` : ''}
+                `;
+                inventoryList.appendChild(div);
+            });
+        }
+
+        window.editEntry = function (id) {
+            const item = db.find(entry => entry.id === id);
+            if (!item) return;
+
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('course').value = item.course;
+            document.getElementById('flag-pos').value = item.flagPos || "";
+            document.getElementById('hole').value = item.hole;
+            document.getElementById('ball').value = item.ball;
+            document.getElementById('club').value = item.club;
+            document.getElementById('club-level').value = item.clubLevel || "";
+            document.getElementById('wind').value = item.wind;
+            document.getElementById('rings').value = item.rings;
+            document.getElementById('pins').value = item.pins;
+            document.getElementById('sv').value = item.sv;
+            document.getElementById('roll').value = item.roll;
+            document.getElementById('pull').value = item.pull;
+            document.getElementById('notes').value = item.notes;
+
+            const preview = document.getElementById('preview-img');
+            const icon = document.getElementById('upload-icon');
+            const text = document.getElementById('upload-text');
+            const removeBtn = document.getElementById('remove-img');
+
+            if (item.image) {
+                preview.src = item.image;
+                preview.classList.remove('hidden');
+                icon.classList.add('hidden');
+                text.classList.add('hidden');
+                removeBtn.classList.remove('hidden');
+            } else {
+                preview.src = "";
+                preview.classList.add('hidden');
+                icon.classList.remove('hidden');
+                text.classList.remove('hidden');
+                removeBtn.classList.add('hidden');
+            }
+
+            const angle = item.windAngle || 0;
+            document.getElementById('wind-angle').value = angle;
+            document.getElementById('wind-arrow-wrapper').style.transform = `rotate(${angle}deg)`;
+
+            document.getElementById('form-title').innerText = t('editTitle');
+            document.getElementById('btn-save').innerHTML = t('update');
+            document.getElementById('btn-cancel').classList.remove('hidden');
+
+            switchTab('form');
+            window.scrollTo(0, 0);
+        };
+
+        window.deleteEntry = function (id) {
+            if (confirm(t('confirmDelete'))) {
+                db = db.filter(item => item.id !== id);
+                saveToStorage();
+                renderInventory();
+                showToast(t('toastDeleted'));
+            }
+        };
+
+        function resetForm() {
+            form.reset();
+            document.getElementById('edit-id').value = "";
+            document.getElementById('form-title').innerText = t('formTitle');
+            document.getElementById('btn-save').innerHTML = t('save');
+            document.getElementById('btn-cancel').classList.add('hidden');
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            renderInventory(e.target.value);
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2000);
+        }
+
+        let isRotating = false;
+
+        function startRotate(e) {
+            isRotating = true;
+            rotate(e);
+            document.addEventListener('mousemove', rotate);
+            document.addEventListener('mouseup', stopRotate);
+            document.addEventListener('touchmove', rotate, { passive: false });
+            document.addEventListener('touchend', stopRotate);
+        }
+
+        function rotate(e) {
+            if (!isRotating) return;
+            if (e.type === 'touchmove') e.preventDefault();
+
+            const clock = document.getElementById('interactive-clock');
+            const arrowWrapper = document.getElementById('wind-arrow-wrapper');
+            const angleInput = document.getElementById('wind-angle');
+
+            const rect = clock.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const deltaX = clientX - centerX;
+            const deltaY = clientY - centerY;
+
+            let angle = Math.atan2(deltaX, -deltaY) * (180 / Math.PI);
+            if (angle < 0) angle += 360;
+
+            angle = Math.round(angle / 5) * 5;
+
+            arrowWrapper.style.transform = `rotate(${angle}deg)`;
+            angleInput.value = angle;
+        }
+
+        function stopRotate() {
+            isRotating = false;
+            document.removeEventListener('mousemove', rotate);
+            document.removeEventListener('mouseup', stopRotate);
+            document.removeEventListener('touchmove', rotate);
+            document.removeEventListener('touchend', stopRotate);
+        }
+
+        const originalResetForm = resetForm;
+        resetForm = function () {
+            originalResetForm();
+            document.getElementById('wind-angle').value = 0;
+            document.getElementById('wind-arrow-wrapper').style.transform = `rotate(0deg)`;
+
+            const preview = document.getElementById('preview-img');
+            const icon = document.getElementById('upload-icon');
+            const text = document.getElementById('upload-text');
+            const removeBtn = document.getElementById('remove-img');
+            preview.src = "";
+            preview.classList.add('hidden');
+            icon.classList.remove('hidden');
+            text.classList.remove('hidden');
+            removeBtn.classList.add('hidden');
+        };
+
+        function handleImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const preview = document.getElementById('preview-img');
+                    const icon = document.getElementById('upload-icon');
+                    const text = document.getElementById('upload-text');
+                    const removeBtn = document.getElementById('remove-img');
+
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    icon.classList.add('hidden');
+                    text.classList.add('hidden');
+                    removeBtn.classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function clearImage(e) {
+            e.stopPropagation();
+            const preview = document.getElementById('preview-img');
+            const icon = document.getElementById('upload-icon');
+            const text = document.getElementById('upload-text');
+            const removeBtn = document.getElementById('remove-img');
+            const input = document.getElementById('image-input');
+            const inputCamera = document.getElementById('image-input-camera');
+
+            preview.src = "";
+            preview.classList.add('hidden');
+            icon.classList.remove('hidden');
+            text.classList.remove('hidden');
+            removeBtn.classList.add('hidden');
+            input.value = "";
+        }
+
+        window.openZoom = function (src) {
+            const overlay = document.getElementById('image-zoom');
+            const img = document.getElementById('zoomed-img');
+            img.src = src;
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeZoom = function () {
+            const overlay = document.getElementById('image-zoom');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        };
+
+
+    </script>
+</body>
+
+</html>
